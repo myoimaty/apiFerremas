@@ -1,4 +1,4 @@
--- Eliminamos las tablas y procedimientos almacenados existentes relacionados con la librería
+-- Eliminamos las tablas y procedimientos almacenados existentes
 DROP TABLE producto CASCADE CONSTRAINTS;
 DROP TABLE marca CASCADE CONSTRAINTS;
 
@@ -24,7 +24,7 @@ INSERT INTO marca VALUES('bkn-001','marca bkn');
 INSERT INTO marca VALUES('BOS-002','bosch');
 INSERT INTO marca VALUES('eta-003','etanli');
 
---INSERTAR LIBROS
+--INSERTAR prod
 
     INSERT INTO producto VALUES('FER-12345','Martillo bkn','bkn-001',20000,150);
     INSERT INTO producto VALUES('FER-82521','Taladro sonico','BOS-002',150000,50);
@@ -122,7 +122,7 @@ CREATE OR REPLACE PROCEDURE sp_delete_prod (p_codigo_producto VARCHAR2,
 IS
 BEGIN
     DELETE FROM producto
-    WHERE cod_marca = p_codigo_producto;
+    WHERE CODIGO_PRODUCTO = p_codigo_producto;
     
     IF sql%ROWCOUNT >0 THEN
         p_out:=1;
@@ -157,7 +157,7 @@ BEGIN
         WHERE codigo_producto = p_codigo_producto;
         p_out:=1;
 END sp_patch_prod;
-
+/
 COMMIT;
 
 VARIABLE p_out NUMBER;

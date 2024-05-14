@@ -20,7 +20,7 @@ cone = oracledb.connect(user="ferremas1",
                         password="ferremas1",
                         host="127.0.0.1",
                         port=1521,
-                        service_name="xe")
+                        service_name="orcl.duoc.com.cl")
 
 app = FastAPI()
 
