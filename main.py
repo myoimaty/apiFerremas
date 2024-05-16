@@ -4,23 +4,13 @@ import oracledb
 from fastapi import FastAPI, HTTPException
 from models.producto import Producto
 
-# Directorio donde se encuentra el Instant Client
-instant_client_dir = r"C:\Oracle\instantclient_21_13"
-
-# Inicialización del cliente Oracle en modo Thick
-def init_oracle_client():
-    d = instant_client_dir
-    oracledb.init_oracle_client(lib_dir=d)
-
-# Llamar a la función de inicialización
-init_oracle_client()
 
 # Conexión a la base de datos
 cone = oracledb.connect(user="ferremas1",
                         password="ferremas1",
                         host="127.0.0.1",
                         port=1521,
-                        service_name="orcl.duoc.com.cl")
+                        service_name="orcl")
 
 app = FastAPI()
 
