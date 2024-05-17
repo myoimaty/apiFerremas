@@ -10,3 +10,4 @@ class Producto(BaseModel):
     nombre_marca: str
     precio: int
     stock: int
+    imagen_url: str

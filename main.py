@@ -34,7 +34,8 @@ async def get_productos():
                     'cod_marca': fila[2],
                     'nombre_marca': fila[3],
                     'precio': fila[4],
-                    'stock': fila[5]
+                    'stock': fila[5],
+                    'imagen_url': fila[6]
                 }
                 lista.append(json)
             return lista
@@ -62,7 +63,8 @@ async def get_producto(codigo_producto: str):
                     'cod_marca': fila[2],
                     'nombre_marca': fila[3],
                     'precio': fila[4],
-                    'stock': fila[5]
+                    'stock': fila[5],
+                    'imagen_url': fila[6]
                 }
                 return json
             else:
@@ -86,6 +88,7 @@ async def post_producto(producto: Producto):
             producto.cod_marca,
             producto.precio,
             producto.stock,
+            producto.imagen_url,
             out
         ])
         if out.getvalue() == 1:
@@ -107,6 +110,7 @@ async def put_producto(codigo_producto: str, producto: Producto):
             producto.cod_marca,
             producto.precio,
             producto.stock,
+            producto.imagen_url,
             out
         ])
         if out.getvalue() == 1:
@@ -142,6 +146,7 @@ async def patch_producto(codigo_producto: str, producto: Producto):
             producto.cod_marca,
             producto.precio,
             producto.stock,
+            producto.imagen_url,
             out
         ])
         if out.getvalue() == 1:
