@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 class Producto(BaseModel):
-    codigo_producto: Optional[str] = None
+    id: Optional[str] = None
     nombre: str = Field(default="Nuevo Producto", min_length=5, max_length=200)
     cod_marca: str
     nombre_marca: str

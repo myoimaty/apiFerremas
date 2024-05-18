@@ -29,7 +29,7 @@ async def get_productos():
             lista = []
             for fila in cursor_productos.getvalue():
                 json = {
-                    'codigo_producto': fila[0],
+                    'id': fila[0],
                     'nombre': fila[1],
                     'cod_marca': fila[2],
                     'nombre_marca': fila[3],
@@ -44,13 +44,13 @@ async def get_productos():
     finally:
         cursor.close()
 
-@app.get("/productos/{codigo_producto}")
-async def get_producto(codigo_producto: str):
+@app.get("/productos/{id}")
+async def get_producto(id: str):
     try:
         cursor = cone.cursor()  # Conexión con Oracle
         out = cursor.var(int)
         cursor_productos = cursor.var(oracledb.CURSOR)
-        cursor.callproc("SP_GET_PRODUCTO", [codigo_producto, out, cursor_productos])
+        cursor.callproc("SP_GET_PRODUCTO", [id, out, cursor_productos])
         if out.getvalue() == 1:
             # Obtener el valor del cursor
             resultado_cursor = cursor_productos.getvalue()
@@ -58,7 +58,7 @@ async def get_producto(codigo_producto: str):
             fila = resultado_cursor.fetchone()
             if fila:
                 json = {
-                    'codigo_producto': fila[0],
+                    'id': fila[0],
                     'nombre': fila[1],
                     'cod_marca': fila[2],
                     'nombre_marca': fila[3],
@@ -83,7 +83,7 @@ async def post_producto(producto: Producto):
         cursor = cone.cursor()
         out = cursor.var(int)
         cursor.callproc("SP_INSERTAR_PROD", [
-            producto.codigo_producto,
+            producto.id,
             producto.nombre,
             producto.cod_marca,
             producto.precio,
@@ -99,13 +99,13 @@ async def post_producto(producto: Producto):
     finally:
         cursor.close()
 
-@app.put("/productos/{codigo_producto}")
-async def put_producto(codigo_producto: str, producto: Producto):
+@app.put("/productos/{id}")
+async def put_producto(id: str, producto: Producto):
     try:
         cursor = cone.cursor()
         out = cursor.var(int)
         cursor.callproc("SP_PUT_PROD", [
-            codigo_producto,
+            id,
             producto.nombre,
             producto.cod_marca,
             producto.precio,
@@ -121,12 +121,12 @@ async def put_producto(codigo_producto: str, producto: Producto):
     finally:
         cursor.close()
 
-@app.delete("/productos/{codigo_producto}")
-async def delete_producto(codigo_producto: str):
+@app.delete("/productos/{id}")
+async def delete_producto(id: str):
     try:
         cursor = cone.cursor()
         out = cursor.var(int)
-        cursor.callproc("SP_DELETE_PROD", [codigo_producto, out])
+        cursor.callproc("SP_DELETE_PROD", [id, out])
         if out.getvalue() == 1:
             cone.commit()
             return {"mensaje": "Producto eliminado"}
@@ -135,13 +135,13 @@ async def delete_producto(codigo_producto: str):
     finally:
         cursor.close()
 
-@app.patch("/productos/{codigo_producto}")
-async def patch_producto(codigo_producto: str, producto: Producto):
+@app.patch("/productos/{id}")
+async def patch_producto(id: str, producto: Producto):
     try:
         cursor = cone.cursor()
         out = cursor.var(int)
         cursor.callproc("SP_PATCH_PROD", [
-            producto.codigo_producto,
+            producto.id,
             producto.nombre,
             producto.cod_marca,
             producto.precio,

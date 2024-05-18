@@ -4,12 +4,12 @@ DROP TABLE marca CASCADE CONSTRAINTS;
 
 -- Creamos las nuevas tablas para "FERREMAS"
 CREATE TABLE producto (
-    codigo_producto VARCHAR2(20) PRIMARY KEY,
+    id VARCHAR2(20) PRIMARY KEY,
     nombre VARCHAR2(100) NOT NULL,
     cod_marca VARCHAR2(100) NOT NULL,
     precio NUMBER NOT NULL,
-    stock NUMBER NOT NULL,
-    imagen_url VARCHAR2(1000)
+    stock NUMBER NOT NULL
+   -- imagen_url VARCHAR2(1000)
 );
 
 CREATE TABLE marca(
@@ -31,7 +31,7 @@ INSERT INTO marca VALUES('eta-003','etanli');
     INSERT INTO producto VALUES('FER-82521','Taladro sonico','BOS-002',150000,50);
     INSERT INTO producto VALUES('FER-45232','alicate etanli','eta-003',7000,150);
 
-
+ALTER TABLE producto ADD imagen_url VARCHAR2(1000);
 COMMIT;
 
 
@@ -41,7 +41,7 @@ CREATE OR REPLACE PROCEDURE sp_get_productos(p_out out NUMBER,
 IS
 BEGIN
     OPEN p_cursor FOR SELECT 
-        p.codigo_producto, 
+        p.id, 
         p.nombre,
         p.cod_marca,
         (SELECT nombre_marca FROM marca m where p.cod_marca = m.cod_marca)as nom_marca,
@@ -62,7 +62,7 @@ CREATE OR REPLACE PROCEDURE sp_get_producto(p_cod_pro VARCHAR2,
 IS
 BEGIN
     OPEN p_cursor FOR SELECT 
-        p.codigo_producto, 
+        p.id, 
         p.nombre,
         p.cod_marca,
         (SELECT nombre_marca FROM marca m where p.cod_marca = m.cod_marca)as nom_marca,
@@ -70,7 +70,7 @@ BEGIN
         p.stock,
         p.imagen_url
     FROM producto p
-    WHERE p.codigo_producto = p_cod_pro;
+    WHERE p.id = p_cod_pro;
     
     p_out := 1;
 EXCEPTION
@@ -96,7 +96,7 @@ END sp_get_producto;
       --  p_out :=0;
     --END sp_insertar_prod;
     
-CREATE OR REPLACE PROCEDURE sp_insertar_prod(p_codigo_producto VARCHAR2,
+CREATE OR REPLACE PROCEDURE sp_insertar_prod(p_id VARCHAR2,
                                              p_nombre VARCHAR2,
                                              p_cod_marca VARCHAR2,
                                              p_precio NUMBER,
@@ -105,7 +105,7 @@ CREATE OR REPLACE PROCEDURE sp_insertar_prod(p_codigo_producto VARCHAR2,
                                              p_out OUT NUMBER)
 IS
 BEGIN
-    INSERT INTO producto VALUES (p_codigo_producto, p_nombre, p_cod_marca, p_precio, p_stock, p_imagen_url);
+    INSERT INTO producto VALUES (p_id, p_nombre, p_cod_marca, p_precio, p_stock, p_imagen_url);
     p_out := 1;
 EXCEPTION   
     WHEN OTHERS THEN
@@ -114,7 +114,7 @@ END sp_insertar_prod;
     
 
 
-CREATE OR REPLACE PROCEDURE sp_put_prod(p_codigo_producto VARCHAR2,
+CREATE OR REPLACE PROCEDURE sp_put_prod(p_id VARCHAR2,
                                              p_nombre VARCHAR2,
                                              p_cod_marca VARCHAR2,
                                              p_precio NUMBER,
@@ -130,7 +130,7 @@ BEGIN
         precio = p_precio,
         stock = p_stock,
         imagen_url = p_imagen_url
-    WHERE codigo_producto = p_codigo_producto;
+    WHERE id = p_id;
     p_out := 1;
     
     EXCEPTION
@@ -138,12 +138,12 @@ BEGIN
         p_out:=0;
     END sp_put_prod;
     
-CREATE OR REPLACE PROCEDURE sp_delete_prod (p_codigo_producto VARCHAR2,
+CREATE OR REPLACE PROCEDURE sp_delete_prod (p_id VARCHAR2,
                                             p_out OUT NUMBER)
 IS
 BEGIN
     DELETE FROM producto
-    WHERE CODIGO_PRODUCTO = p_codigo_producto;
+    WHERE id = p_id;
     
     IF sql%ROWCOUNT >0 THEN
         p_out:=1;
@@ -156,7 +156,7 @@ BEGIN
         p_out:=0;
 END sp_delete_prod;
 /
-CREATE OR REPLACE PROCEDURE sp_patch_prod(p_codigo_producto VARCHAR2,
+CREATE OR REPLACE PROCEDURE sp_patch_prod(p_id VARCHAR2,
                                              p_nombre VARCHAR2,
                                              p_cod_marca VARCHAR2,
                                              p_precio NUMBER,
@@ -165,7 +165,7 @@ CREATE OR REPLACE PROCEDURE sp_patch_prod(p_codigo_producto VARCHAR2,
                                              p_out OUT NUMBER)
 IS
 BEGIN
-    INSERT INTO producto VALUES(p_codigo_producto,p_nombre,
+    INSERT INTO producto VALUES(p_id,p_nombre,
                                 p_cod_marca,p_precio,p_stock,p_imagen_url);
     p_out:=1;
     
@@ -177,7 +177,7 @@ BEGIN
             precio = p_precio,
             stock = p_stock,
             imagen_url = p_imagen_url
-        WHERE codigo_producto = p_codigo_producto;
+        WHERE id = id;
         p_out:=1;
 END sp_patch_prod;
 /
@@ -191,19 +191,23 @@ EXEC SP_GET_PRODUCTO('FER-12345', :p_out, :p_cursor);
 PRINT p_out;
 PRINT p_cursor;
 
-ALTER TABLE producto ADD imagen_url VARCHAR2(1000);
+
 
 UPDATE producto 
 SET imagen_url = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pinterest.com%2Fpin%2F296041375478678441%2F&psig=AOvVaw1aZWFB7pUieCcgFesCCcDR&ust=1716002680411000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCNjH66Pek4YDFQAAAAAdAAAAABAE'
-WHERE codigo_producto = 'FER-12345';
+WHERE id = 'FER-12345';
 
 UPDATE producto 
 SET imagen_url = 'http://example.com/imagenes/taladro_sonico.jpg'
-WHERE codigo_producto = 'FER-82521';
+WHERE id = 'FER-82521';
 
 UPDATE producto 
 SET imagen_url = 'http://example.com/imagenes/alicate_etanli.jpg'
-WHERE codigo_producto = 'FER-45232';
+WHERE id = 'FER-45232';
+
+
+
+
 
 COMMIT;
         
