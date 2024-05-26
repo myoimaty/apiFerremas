@@ -136,23 +136,20 @@ async def delete_producto(id: str):
         cursor.close()
 
 @app.patch("/productos/{id}")
-async def patch_producto(id: str, producto: Producto):
+async def patch_producto(id: str, stock: int):
     try:
         cursor = cone.cursor()
         out = cursor.var(int)
         cursor.callproc("SP_PATCH_PROD", [
-            producto.id,
-            producto.nombre,
-            producto.cod_marca,
-            producto.precio,
-            producto.stock,
-            producto.imagen_url,
+            id,  # Pasar el ID del producto como parte de la lista de parámetros
+            stock,  # Pasar el nuevo stock
             out
         ])
         if out.getvalue() == 1:
             cone.commit()
-            return producto
+            return {"mensaje": "Stock actualizado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
+

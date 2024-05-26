@@ -78,23 +78,6 @@ EXCEPTION
         p_out := 0;
 END sp_get_producto;
 
---CREATE OR REPLACE PROCEDURE sp_insertar_prod(p_codigo_producto VARCHAR2,
-  --                                           p_nombre VARCHAR2,
-    --                                         p_cod_marca VARCHAR2,
-      --                                       p_precio NUMBER,
-        --                                     p_stock NUMBER,
-          --                                   p_out OUT NUMBER)
---IS
---BEGIN
-  ---  INSERT INTO producto VALUES (p_codigo_producto,p_nombre,
-     --                            p_cod_marca,p_precio,
-       --                          p_stock);
-    --p_out :=1;
-    
-    --EXCEPTION   
-    --WHEN OTHERS THEN
-      --  p_out :=0;
-    --END sp_insertar_prod;
     
 CREATE OR REPLACE PROCEDURE sp_insertar_prod(p_id VARCHAR2,
                                              p_nombre VARCHAR2,
@@ -157,30 +140,41 @@ BEGIN
 END sp_delete_prod;
 /
 CREATE OR REPLACE PROCEDURE sp_patch_prod(p_id VARCHAR2,
-                                             p_nombre VARCHAR2,
-                                             p_cod_marca VARCHAR2,
-                                             p_precio NUMBER,
-                                             p_stock NUMBER,
-                                             p_imagen_url VARCHAR2,
-                                             p_out OUT NUMBER)
+                                          p_stock NUMBER,
+                                          p_out OUT NUMBER)
 IS
 BEGIN
-    INSERT INTO producto VALUES(p_id,p_nombre,
-                                p_cod_marca,p_precio,p_stock,p_imagen_url);
-    p_out:=1;
-    
-    EXCEPTION
-    WHEN dup_val_on_index THEN
     UPDATE producto
-        SET nombre = p_nombre,
-            cod_marca = p_cod_marca,
-            precio = p_precio,
-            stock = p_stock,
-            imagen_url = p_imagen_url
-        WHERE id = id;
-        p_out:=1;
+    SET stock = p_stock
+    WHERE id = p_id;
+    
+    p_out := SQL%ROWCOUNT; -- Esto devolverá 1 si se realizó una actualización y 0 si no se encontró ningún registro para actualizar.
+EXCEPTION
+    WHEN OTHERS THEN
+        p_out := 0; -- Si ocurre algún error, establecer p_out en 0
 END sp_patch_prod;
 /
+
+CREATE OR REPLACE PROCEDURE sp_update_stock(p_id VARCHAR2,
+                                            p_stock NUMBER,
+                                            p_out OUT NUMBER)
+IS
+BEGIN
+    UPDATE producto
+    SET stock = p_stock
+    WHERE id = p_id;
+    
+    IF sql%ROWCOUNT > 0 THEN
+        p_out := 1;
+    ELSE
+        p_out := 0;
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        p_out := 0;
+END sp_update_stock;
+/
+
 COMMIT;
 
 VARIABLE p_out NUMBER;
@@ -192,18 +186,6 @@ PRINT p_out;
 PRINT p_cursor;
 
 
-
-UPDATE producto 
-SET imagen_url = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pinterest.com%2Fpin%2F296041375478678441%2F&psig=AOvVaw1aZWFB7pUieCcgFesCCcDR&ust=1716002680411000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCNjH66Pek4YDFQAAAAAdAAAAABAE'
-WHERE id = 'FER-12345';
-
-UPDATE producto 
-SET imagen_url = 'http://example.com/imagenes/taladro_sonico.jpg'
-WHERE id = 'FER-82521';
-
-UPDATE producto 
-SET imagen_url = 'http://example.com/imagenes/alicate_etanli.jpg'
-WHERE id = 'FER-45232';
 
 
 
