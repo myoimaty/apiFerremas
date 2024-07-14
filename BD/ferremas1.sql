@@ -27,13 +27,16 @@ INSERT INTO marca VALUES('eta-003','etanli');
 
 --INSERTAR prod
 
-    INSERT INTO producto VALUES('FER-12345','Martillo bkn','bkn-001',20000,150);
-    INSERT INTO producto VALUES('FER-82521','Taladro sonico','BOS-002',150000,50);
-    INSERT INTO producto VALUES('FER-45232','alicate etanli','eta-003',7000,150);
+    INSERT INTO producto VALUES('FER-12345','Martillo bkn','bkn-001',10,150);
+    INSERT INTO producto VALUES('FER-82521','Taladro sonico','BOS-002',22,50);
+    INSERT INTO producto VALUES('FER-45232','martillo de acrilico','eta-003',40,150);
 
 ALTER TABLE producto ADD imagen_url VARCHAR2(1000);
 COMMIT;
-
+--imagenes de los productos (en orden)
+--https://easycl.vtexassets.com/arquivos/ids/222270/1277696-02.jpg?v=637528335261030000
+--https://naturalenergy.cl/4636-large_default/martillo-de-nylon-101.jpg
+--https://konstrumarket.cl/wp-content/uploads/2022/05/HBSTEGBM10-RE.jpg
 
 
 CREATE OR REPLACE PROCEDURE sp_get_productos(p_out out NUMBER,
@@ -148,10 +151,10 @@ BEGIN
     SET stock = p_stock
     WHERE id = p_id;
     
-    p_out := SQL%ROWCOUNT; -- Esto devolverá 1 si se realizó una actualización y 0 si no se encontró ningún registro para actualizar.
+    p_out := SQL%ROWCOUNT; -- Esto devolver? 1 si se realiz? una actualizaci?n y 0 si no se encontr? ning?n registro para actualizar.
 EXCEPTION
     WHEN OTHERS THEN
-        p_out := 0; -- Si ocurre algún error, establecer p_out en 0
+        p_out := 0; -- Si ocurre alg?n error, establecer p_out en 0
 END sp_patch_prod;
 /
 
@@ -186,9 +189,31 @@ PRINT p_out;
 PRINT p_cursor;
 
 
+CREATE OR REPLACE PROCEDURE sp_get_productos_por_nombre(p_nombre VARCHAR2,
+                                                        p_out out NUMBER,
+                                                        p_cursor out SYS_REFCURSOR)
+IS
+BEGIN
+    OPEN p_cursor FOR SELECT 
+        p.id, 
+        p.nombre,
+        p.cod_marca,
+        (SELECT nombre_marca FROM marca m where p.cod_marca = m.cod_marca) as nom_marca,
+        p.precio, 
+        p.stock,
+        p.imagen_url
+    FROM producto p
+    WHERE LOWER(p.nombre) LIKE '%' || LOWER(p_nombre) || '%';
+    
+    p_out := 1;
+EXCEPTION
+    WHEN OTHERS THEN
+        p_out := 0;
+END sp_get_productos_por_nombre;
 
 
 
+COMMIT;
 
 
 COMMIT;

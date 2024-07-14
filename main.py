@@ -1,9 +1,9 @@
 import os
 import platform
 import oracledb
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from models.producto import Producto
-
+from typing import List, Optional
 
 # Conexión a la base de datos
 cone = oracledb.connect(user="ferremas1",
@@ -19,26 +19,44 @@ def mensaje_inicial():
     return {"mensaje": "Hola tilines"}
 
 @app.get("/productos")
-async def get_productos():
+async def get_productos(nombre: Optional[str] = Query(None, min_length=3, max_length=50)):
     try:
-        cursor = cone.cursor()  # Conexión con Oracle
-        out = cursor.var(int)
-        cursor_productos = cursor.var(oracledb.CURSOR)
-        cursor.callproc("SP_GET_PRODUCTOS", [out, cursor_productos])
-        if out.getvalue() == 1:
-            lista = []
-            for fila in cursor_productos.getvalue():
-                json = {
-                    'id': fila[0],
-                    'nombre': fila[1],
-                    'cod_marca': fila[2],
-                    'nombre_marca': fila[3],
-                    'precio': fila[4],
-                    'stock': fila[5],
-                    'imagen_url': fila[6]
-                }
-                lista.append(json)
-            return lista
+        cursor = cone.cursor()
+        productos = []
+        
+        if nombre:
+            out = cursor.var(int)
+            cursor_productos = cursor.var(oracledb.CURSOR)
+            cursor.callproc("sp_get_productos_por_nombre", [nombre, out, cursor_productos])
+            if out.getvalue() == 1:
+                for fila in cursor_productos.getvalue():
+                    json = {
+                        'id': fila[0],
+                        'nombre': fila[1],
+                        'cod_marca': fila[2],
+                        'nombre_marca': fila[3],
+                        'precio': fila[4],
+                        'stock': fila[5],
+                        'imagen_url': fila[6]
+                    }
+                    productos.append(json)
+        else:
+            out = cursor.var(int)
+            cursor_productos = cursor.var(oracledb.CURSOR)
+            cursor.callproc("sp_get_productos", [out, cursor_productos])
+            if out.getvalue() == 1:
+                for fila in cursor_productos.getvalue():
+                    json = {
+                        'id': fila[0],
+                        'nombre': fila[1],
+                        'cod_marca': fila[2],
+                        'nombre_marca': fila[3],
+                        'precio': fila[4],
+                        'stock': fila[5],
+                        'imagen_url': fila[6]
+                    }
+                    productos.append(json)
+        return productos
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
@@ -75,7 +93,6 @@ async def get_producto(id: str):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
-
 
 @app.post("/productos")
 async def post_producto(producto: Producto):
@@ -152,4 +169,3 @@ async def patch_producto(id: str, stock: int):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
-
